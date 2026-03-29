@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 7 Gammes | Melv_Guitar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #080810;
+    --panel: #0f0f1a;
+    --border: #2a1f4a;
+    --purple: #8b2fff;
+    --glow: #bf7fff;
+    --accent: #ff3cac;
+    --text: #e8e0ff;
+    --muted: #6b5f8a;
+    --root-color: #ff3cac;
+    --note-color: #8b2fff;
+    --fret-color: #3a2d5a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 20%, rgba(139,47,255,0.1) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 85% 80%, rgba(106,15,212,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  header { text-align: center; margin-bottom: 28px; }
+  .brand { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 6px; color: var(--muted); margin-bottom: 8px; }
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(20px, 4vw, 32px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #bf7fff 0%, #ff3cac 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .subtitle { font-size: 13px; color: var(--muted); font-weight: 300; }
+
+  .scale-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .scale-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .scale-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--purple), var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .scale-btn:hover::before { opacity: 0.1; }
+  .scale-btn.active { border-color: var(--purple); box-shadow: 0 0 16px rgba(139,47,255,0.3); }
+  .scale-btn.active::before { opacity: 0.15; }
+  .scale-btn .sn { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px; color: var(--glow); position: relative; z-index: 1; display: block; margin-bottom: 3px; }
+  .scale-btn .sl { font-size: 11px; color: var(--text); position: relative; z-index: 1; display: block; font-weight: 600; }
+  .scale-btn .sm { font-size: 10px; color: var(--muted); position: relative; z-index: 1; display: block; margin-top: 2px; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .control-group {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ctrl-label { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: var(--muted); white-space: nowrap; }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  .small-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 9px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .small-btn:hover { color: var(--text); border-color: var(--muted); }
+  .small-btn.active { background: var(--purple); border-color: var(--purple); color: white; box-shadow: 0 0 8px rgba(139,47,255,0.4); }
+
+  .mode-toggle {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+  }
+  .mode-btn {
+    border: none;
+    border-radius: 7px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    color: var(--muted);
+    background: transparent;
+  }
+  .mode-btn.active { background: var(--purple); color: white; box-shadow: 0 0 10px rgba(139,47,255,0.4); }
+
+  .pos-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 12px;
+  }
+  .pos-label { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); }
+  .pos-num { font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 700; color: var(--glow); min-width: 20px; text-align: center; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    width: 26px; height: 26px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: rgba(139,47,255,0.2); border-color: var(--purple); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .fretboard-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px 32px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+
+  .fretboard-wrapper { min-width: 540px; position: relative; }
+
+  .fretboard {
+    position: relative;
+    height: 156px;
+    background: linear-gradient(180deg, #1a1020 0%, #120d1a 100%);
+    border-radius: 6px;
+    border: 2px solid #2a1f3a;
+  }
+
+  .nut { position: absolute; left: 44px; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, #d4c4a0, #a08060); border-radius: 2px; z-index: 3; }
+  .fret-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--fret-color); z-index: 2; }
+
+  .pos-zone {
+    position: absolute;
+    top: 0; bottom: 0;
+    background: rgba(139,47,255,0.07);
+    border-left: 1px dashed rgba(139,47,255,0.4);
+    border-right: 1px dashed rgba(139,47,255,0.4);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .fret-dot { position: absolute; width: 7px; height: 7px; background: var(--fret-color); border-radius: 50%; transform: translate(-50%, -50%); z-index: 1; }
+  .string-line { position: absolute; left: 0; right: 0; z-index: 2; }
+  .string-label { position: absolute; left: 6px; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: var(--muted); font-family: 'Rajdhani', sans-serif; z-index: 5; }
+  .fret-number { position: absolute; bottom: -22px; transform: translateX(-50%); font-size: 10px; color: var(--muted); font-family: 'Rajdhani', sans-serif; }
+
+  .note-dot {
+    position: absolute;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: all 0.25s ease;
+  }
+  .note-dot.root { background: var(--root-color); box-shadow: 0 0 12px rgba(255,60,172,0.8), 0 0 24px rgba(255,60,172,0.3); }
+  .note-dot.interval { background: var(--note-color); box-shadow: 0 0 8px rgba(139,47,255,0.6); }
+  .note-dot.big { width: 28px; height: 28px; }
+  .dot-top { font-size: 8px; font-weight: 700; color: white; font-family: 'Rajdhani', sans-serif; line-height: 1.1; text-align: center; }
+  .dot-bottom { font-size: 7px; color: rgba(255,255,255,0.7); font-family: 'Rajdhani', sans-serif; line-height: 1.1; text-align: center; }
+
+  .legend { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 13px; height: 13px; border-radius: 50%; }
+  .legend-dot.r { background: var(--root-color); box-shadow: 0 0 6px rgba(255,60,172,0.6); }
+  .legend-dot.i { background: var(--note-color); box-shadow: 0 0 6px rgba(139,47,255,0.6); }
+
+  .scale-info { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .info-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .info-title { font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 700; color: var(--glow); }
+  .info-mood { font-size: 12px; color: var(--accent); background: rgba(255,60,172,0.1); border: 1px solid rgba(255,60,172,0.3); border-radius: 20px; padding: 3px 10px; }
+  .notes-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+  .note-chip { padding: 4px 11px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: 'Rajdhani', sans-serif; }
+  .note-chip.rc { background: rgba(255,60,172,0.2); border: 1px solid var(--accent); color: var(--accent); }
+  .note-chip.ic { background: rgba(139,47,255,0.15); border: 1px solid rgba(139,47,255,0.4); color: var(--glow); }
+  .formula-row { font-size: 12px; color: var(--muted); font-family: 'Orbitron', monospace; letter-spacing: 1px; margin-bottom: 6px; }
+  .formula-row span { color: var(--text); }
+  .description { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+  .fingering-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(139,47,255,0.08);
+    border: 1px solid rgba(139,47,255,0.25);
+    border-radius: 8px;
+  }
+  .fing-label { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+  .fing-table { width: 100%; border-collapse: collapse; }
+  .fing-table td { padding: 3px 8px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; }
+  .fing-table td:first-child { color: var(--muted); font-size: 11px; white-space: nowrap; }
+  .fing-table td:last-child { color: var(--text); letter-spacing: 1px; }
+  .fing-table tr:hover td { background: rgba(139,47,255,0.1); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="brand">Melv_Guitar — Formation GPS</div>
+    <h1>Les 7 Gammes Essentielles</h1>
+    <p class="subtitle">Clique sur une gamme · Choisis ta tonalité</p>
+  </header>
+
+  <div class="scale-grid" id="scaleGrid"></div>
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="ctrl-label">TONALITÉ</span>
+      <div class="btn-group" id="keyButtons"></div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnPos" onclick="setMode('position')">📍 Position</button>
+      <button class="mode-btn" id="btnFull" onclick="setMode('full')">🎸 Tout le manche</button>
+    </div>
+    <div class="pos-nav" id="posNav">
+      <span class="pos-label">POS.</span>
+      <button class="nav-btn" id="prevPos" onclick="changePos(-1)" disabled>‹</button>
+      <span class="pos-num" id="posNum">1</span>
+      <button class="nav-btn" id="nextPos" onclick="changePos(1)">›</button>
+    </div>
+    <div class="control-group">
+      <span class="ctrl-label">CASES</span>
+      <div class="btn-group">
+        <button class="small-btn active" id="btnNote" onclick="setDisplay('note')">Note</button>
+        <button class="small-btn" id="btnFret" onclick="setDisplay('fret')">N°</button>
+        <button class="small-btn" id="btnBoth" onclick="setDisplay('both')">Les 2</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fretboard-section">
+    <div class="fretboard-wrapper">
+      <div class="fretboard" id="fretboard"></div>
+      <div id="fretMarkers" style="position:relative;height:26px;"></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot r"></div> Tonique (racine)</div>
+      <div class="legend-item"><div class="legend-dot i"></div> Notes de la gamme</div>
+    </div>
+  </div>
+
+  <div class="scale-info" id="scaleInfo"></div>
+
+</div>
+
+<script>
+const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+// Standard tuning: strings 0-5 = E2 A2 D3 G3 B3 E4
+const TUNINGS = [4, 9, 2, 7, 11, 4];
+const STR_NAMES = ['E','A','D','G','B','e'];
+const NUM_FRETS = 12;
+const DOT_FRETS = [3,5,7,9,12];
+
+const SCALES = [
+  { id:'major', name:'MAJEURE', label:'Gamme Majeure', mood:'Joyeux • Lumineux',
+    formula:[0,2,4,5,7,9,11], formulaName:'T - T - ½ - T - T - T - ½',
+    description:'La gamme de référence. Son positif et lumineux. Indispensable pour comprendre l\'harmonie et les accords.',
+    usage:'Pop, Rock, Country, Folk' },
+  { id:'nat_minor', name:'MINEURE', label:'Mineure Naturelle', mood:'Mélancolique • Sombre',
+    formula:[0,2,3,5,7,8,10], formulaName:'T - ½ - T - T - ½ - T - T',
+    description:'Son sombre et mélancolique. Très utilisée en rock, métal et musique classique. Relative mineure de la gamme majeure.',
+    usage:'Rock, Métal, Classique' },
+  { id:'penta_maj', name:'PENTA MAJ', label:'Pentatonique Majeure', mood:'Simple • Universel',
+    formula:[0,2,4,7,9], formulaName:'T - T - T+½ - T - T+½',
+    description:'5 notes seulement. Impossible de faire une fausse note. Son folk, country, pop. Parfaite pour commencer à improviser.',
+    usage:'Blues, Country, Pop' },
+  { id:'penta_min', name:'PENTA MIN', label:'Pentatonique Mineure', mood:'Blues • Rock',
+    formula:[0,3,5,7,10], formulaName:'T+½ - T - T - T+½ - T',
+    description:'LA gamme des guitaristes rock et blues. 5 notes, son immédiatement reconnaissable. C\'est avec elle qu\'on apprend à improviser.',
+    usage:'Rock, Blues, Funk' },
+  { id:'blues', name:'BLUES', label:'Gamme Blues', mood:'Expressif • Soul',
+    formula:[0,3,5,6,7,10], formulaName:'Penta mineure + blue note (b5)',
+    description:'La pentatonique mineure avec la blue note (b5). Donne ce son caractéristique et expressif du blues. Une seule note change tout.',
+    usage:'Blues, Jazz, Rock' },
+  { id:'dorian', name:'DORIENNE', label:'Mode Dorien', mood:'Funky • Jazzy',
+    formula:[0,2,3,5,7,9,10], formulaName:'T - ½ - T - T - T - ½ - T',
+    description:'Mode mineur avec une 6ème majeure : son jazzy et funky. Santana en est l\'exemple parfait. Entre le mineur et le majeur.',
+    usage:'Jazz, Funk, Rock Progressif' },
+  { id:'harm_minor', name:'MIN. HARM.', label:'Mineure Harmonique', mood:'Dramatique • Flamenco',
+    formula:[0,2,3,5,7,8,11], formulaName:'T - ½ - T - T - ½ - T+½ - ½',
+    description:'La mineure avec une 7ème majeure. Son dramatique, oriental, flamenco. Très utilisée en métal classique et musique espagnole.',
+    usage:'Flamenco, Métal, Classique' },
+];
+
+const KEYS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+let selScale = SCALES[3];
+let selKey = 0;
+let viewMode = 'position';
+let dispMode = 'note';
+let posIdx = 0;
+
+// Build 5 positions from root note on each string progressively
+function getPositions(keyIdx, formula) {
+  const scaleNotes = formula.map(i => (keyIdx + i) % 12);
+  // Find all frets on low E where scale notes appear (these become position anchors)
+  const anchors = [];
+  for (let f = 0; f <= 11; f++) {
+    const note = (TUNINGS[0] + f) % 12;
+    if (scaleNotes.includes(note)) anchors.push(f);
+  }
+  // Take up to 5 anchors spread across the neck
+  return anchors.slice(0, 5);
+}
+
+function getWindowNotes(keyIdx, formula, startFret) {
+  const scaleNotes = formula.map(i => (keyIdx + i) % 12);
+  const result = [];
+  const end = startFret + 4;
+  for (let s = 0; s < 6; s++) {
+    for (let f = 0; f <= 12; f++) {
+      const note = (TUNINGS[s] + f) % 12;
+      if (!scaleNotes.includes(note)) continue;
+      const inWin = (f >= startFret && f <= end) || (startFret === 0 && f === 0);
+      if (inWin) result.push({ string: s, fret: f, note });
+    }
+  }
+  return result;
+}
+
+function setMode(m) {
+  viewMode = m;
+  document.getElementById('btnPos').classList.toggle('active', m==='position');
+  document.getElementById('btnFull').classList.toggle('active', m==='full');
+  document.getElementById('posNav').style.display = m==='position' ? 'flex' : 'none';
+  posIdx = 0;
+  updatePosNav();
+  renderFretboard();
+  renderInfo();
+}
+
+function setDisplay(d) {
+  dispMode = d;
+  ['note','fret','both'].forEach(x => {
+    const cap = x === 'both' ? 'Both' : x.charAt(0).toUpperCase()+x.slice(1);
+    document.getElementById('btn'+cap).classList.toggle('active', x===d);
+  });
+  renderFretboard();
+}
+
+function changePos(dir) {
+  const pos = getPositions(selKey, selScale.formula);
+  posIdx = Math.max(0, Math.min(pos.length-1, posIdx+dir));
+  updatePosNav();
+  renderFretboard();
+  renderInfo();
+}
+
+function updatePosNav() {
+  const pos = getPositions(selKey, selScale.formula);
+  document.getElementById('posNum').textContent = posIdx+1;
+  document.getElementById('prevPos').disabled = posIdx===0;
+  document.getElementById('nextPos').disabled = posIdx>=pos.length-1;
+}
+
+function selectScale(id) {
+  selScale = SCALES.find(s=>s.id===id);
+  posIdx = 0;
+  renderScaleGrid();
+  updatePosNav();
+  renderFretboard();
+  renderInfo();
+}
+
+function selectKey(i) {
+  selKey = i;
+  posIdx = 0;
+  renderKeyBtns();
+  updatePosNav();
+  renderFretboard();
+  renderInfo();
+}
+
+function renderScaleGrid() {
+  document.getElementById('scaleGrid').innerHTML = SCALES.map(s=>`
+    <button class="scale-btn ${s.id===selScale.id?'active':''}" onclick="selectScale('${s.id}')">
+      <span class="sn">${s.name}</span>
+      <span class="sl">${s.label}</span>
+      <span class="sm">${s.mood}</span>
+    </button>
+  `).join('');
+}
+
+function renderKeyBtns() {
+  document.getElementById('keyButtons').innerHTML = KEYS.map((k,i)=>`
+    <button class="small-btn ${i===selKey?'active':''}" onclick="selectKey(${i})">${k}</button>
+  `).join('');
+}
+
+function renderFretboard() {
+  const fb = document.getElementById('fretboard');
+  const markDiv = document.getElementById('fretMarkers');
+  fb.innerHTML = '';
+  markDiv.innerHTML = '';
+
+  const w = fb.offsetWidth || 660;
+  const nutX = 44;
+  const playW = w - nutX - 10;
+  const fretSp = playW / NUM_FRETS;
+  const strSp = 116/5;
+  const strTop = 18;
+
+  const scaleNotes = selScale.formula.map(i=>(selKey+i)%12);
+  const rootNote = selKey%12;
+
+  // Nut
+  const nut = document.createElement('div');
+  nut.className='nut'; fb.appendChild(nut);
+
+  // Position highlight
+  let startFret=0, endFret=12;
+  if (viewMode==='position') {
+    const positions = getPositions(selKey, selScale.formula);
+    startFret = positions[posIdx] || 0;
+    endFret = startFret+4;
+    const zoneL = nutX + startFret*fretSp;
+    const zoneW2 = 5*fretSp;
+    const zone = document.createElement('div');
+    zone.className='pos-zone';
+    zone.style.left = zoneL+'px';
+    zone.style.width = zoneW2+'px';
+    fb.appendChild(zone);
+  }
+
+  // Frets
+  for (let f=1; f<=NUM_FRETS; f++) {
+    const x = nutX+f*fretSp;
+    const fl=document.createElement('div');
+    fl.className='fret-line'; fl.style.left=x+'px'; fb.appendChild(fl);
+
+    const fm=document.createElement('div');
+    fm.className='fret-number';
+    fm.style.left=(nutX+(f-0.5)*fretSp)+'px';
+    fm.textContent=f; markDiv.appendChild(fm);
+
+    if (DOT_FRETS.includes(f)) {
+      const dt=document.createElement('div');
+      dt.className='fret-dot';
+      dt.style.left=(nutX+(f-0.5)*fretSp)+'px';
+      dt.style.top='50%'; fb.appendChild(dt);
+    }
+  }
+
+  // Strings & notes
+  for (let s=0; s<6; s++) {
+    const y = strTop+(5-s)*strSp;
+    const thick = 0.8+s*0.25;
+
+    const sl=document.createElement('div');
+    sl.className='string-line';
+    sl.style.top=y+'px'; sl.style.height=thick+'px';
+    sl.style.background=`rgba(200,168,112,${0.4+s*0.08})`;
+    fb.appendChild(sl);
+
+    const lab=document.createElement('div');
+    lab.className='string-label'; lab.style.top=y+'px';
+    lab.textContent=STR_NAMES[s]; fb.appendChild(lab);
+
+    for (let f=0; f<=NUM_FRETS; f++) {
+      const note=(TUNINGS[s]+f)%12;
+      if (!scaleNotes.includes(note)) continue;
+
+      if (viewMode==='position') {
+        const inWin=(f>=startFret&&f<=endFret)||(startFret===0&&f===0);
+        if (!inWin) continue;
+      }
+
+      const x = f===0 ? nutX-15 : nutX+(f-0.5)*fretSp;
+      const isRoot = note===rootNote;
+      const showBoth = dispMode==='both';
+
+      const dot=document.createElement('div');
+      dot.className=`note-dot ${isRoot?'root':'interval'} ${showBoth?'big':''}`;
+      dot.style.left=x+'px'; dot.style.top=y+'px';
+
+      if (dispMode==='note') {
+        const sp=document.createElement('span');
+        sp.className='dot-top'; sp.textContent=NOTES[note];
+        dot.appendChild(sp);
+      } else if (dispMode==='fret') {
+        const sp=document.createElement('span');
+        sp.className='dot-top'; sp.textContent=f;
+        dot.appendChild(sp);
+      } else {
+        const t=document.createElement('span'); t.className='dot-top'; t.textContent=NOTES[note];
+        const b=document.createElement('span'); b.className='dot-bottom'; b.textContent=f;
+        dot.appendChild(t); dot.appendChild(b);
+      }
+
+      fb.appendChild(dot);
+    }
+  }
+}
+
+function renderInfo() {
+  const info = document.getElementById('scaleInfo');
+  const scaleNotes = selScale.formula.map(i=>(selKey+i)%12);
+  const keyName = KEYS[selKey];
+
+  const chips = scaleNotes.map((n,i)=>`
+    <span class="note-chip ${i===0?'rc':'ic'}">${NOTES[n]}</span>
+  `).join('');
+
+  let fingeringHTML='';
+  if (viewMode==='position') {
+    const positions = getPositions(selKey, selScale.formula);
+    const sf = positions[posIdx]||0;
+    const wNotes = getWindowNotes(selKey, selScale.formula, sf);
+    // Group by string
+    const byStr={};
+    wNotes.forEach(n=>{ if(!byStr[n.string])byStr[n.string]=[]; byStr[n.string].push(n.fret); });
+    let rows='';
+    for(let s=5;s>=0;s--){
+      if(byStr[s]){
+        const frets=byStr[s].sort((a,b)=>a-b).join('  —  ');
+        rows+=`<tr><td>Corde ${6-s} &nbsp;(${STR_NAMES[s]})</td><td>${frets}</td></tr>`;
+      }
+    }
+    fingeringHTML=`
+      <div class="fingering-box">
+        <div class="fing-label">NUMÉROS DE CASES — POSITION ${posIdx+1} (à partir de la case ${sf===0?'0 / corde à vide':sf})</div>
+        <table class="fing-table">${rows}</table>
+      </div>
+    `;
+  }
+
+  info.innerHTML=`
+    <div class="info-header">
+      <span class="info-title">${keyName} ${selScale.label}</span>
+      <span class="info-mood">${selScale.mood}</span>
+    </div>
+    <div class="notes-row">${chips}</div>
+    <div class="formula-row">FORMULE : <span>${selScale.formulaName}</span></div>
+    <p class="description">${selScale.description}</p>
+    <div class="formula-row" style="margin-top:8px">UTILISATION : <span>${selScale.usage}</span></div>
+    ${fingeringHTML}
+  `;
+}
+
+window.addEventListener('load',()=>{
+  renderScaleGrid();
+  renderKeyBtns();
+  updatePosNav();
+  renderFretboard();
+  renderInfo();
+});
+window.addEventListener('resize', renderFretboard);
+</script>
+</body>
+</html>
